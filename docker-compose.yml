@@ -1,0 +1,26 @@
+services: 
+  ollama: 
+    image: ollama/ollama:latest 
+    runtime: nvidia 
+    environment: 
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_HOST=0.0.0.0:11434 
+    volumes: 
+      - ollama_models:/root/.ollama 
+    ports: 
+      - "127.0.0.1:11434:11434" # ollama default port, ip for sec
+    restart: unless-stopped 
+    healthcheck: 
+      test: ["CMD", "list", "http://localhost:11434/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # wait unltil server is ready
+    entrypoint: >
+      /bin/sh -c "ollama serve &
+      until ollama list > /dev/null 2>&1; do sleep 2; done &&
+      ollama list | grep -q 'phi3:mini' || ollama pull phi3:mini &&
+      wait"
+
+volumes: 
+  ollama_models: {}

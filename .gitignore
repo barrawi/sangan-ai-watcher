@@ -1,0 +1,17 @@
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore the generated context file
+content_exporter.txt
+
+# Ignore local virtual environments if kept inside this folder
+venv/
+.venv/
+
+# Ignore .env from docker
+.env
+
+# Ignore logs
+*.log
