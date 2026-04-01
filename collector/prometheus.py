@@ -5,12 +5,16 @@ Wilberth Barrantes
 """
 
 import logging
+import os
 
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger("sangan.prometheus")
 
-PROMETHEUS_URL = "http://localhost:9090"
+PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://localhost:9090")
 
 
 def get_cluster_metrics() -> dict:

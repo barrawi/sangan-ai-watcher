@@ -6,12 +6,17 @@ Wilberth Barrantes
 
 import json
 import logging
+import os
 import time
 
 import httpx
+from dotenv import load_dotenv
 
 from collector.prometheus import get_cluster_metrics
 from collector.sanitizer import build_prompt, sanitize_metrics
+from notifications.notifier import send_webhook_alert
+
+load_dotenv()
 
 logging.basicConfig(
     format="%(asctime)s %(name)s %(levelname)s %(message)s", level=logging.INFO
@@ -19,7 +24,7 @@ logging.basicConfig(
 
 logger = logging.getLogger("sangan.monitor")
 
-OLLAMA_URL = "http://localhost:11434"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODEL = "phi3:mini"
 CHECK_INTERVAL = 60  # seconds between evaluations
 
@@ -60,6 +65,7 @@ def handle_alert(message: str, metrics: dict):
     logger.warning(f"SANGAN ALERT: {message}")
     logger.warning(f"Metrics at time of alert: {json.dumps(metrics)}")
     # might send the message trhough discord or whatsapp in the future
+    send_webhook_alert(message, metrics)  # done
 
 
 def evaluate():
