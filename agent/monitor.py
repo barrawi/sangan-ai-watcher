@@ -39,7 +39,7 @@ def query_llm(prompt: str) -> str:
                 "model": MODEL,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.1},  # low = consistent output
+                "options": {"temperature": 0.0},  # low = consistent output
             },
             timeout=60.0,
         )
@@ -90,6 +90,11 @@ def evaluate():
         return
 
     logger.info(f"LLM response: {response}")
+
+    # make sure LLM responds with STATUS, if it allucinates this will jump
+    if not response.upper().startswith("STATUS:"):
+        logger.warning(f"Unexpected LLM response format: {response}")
+        return
 
     # parse response, check for ALERT
     if "ALERT" in response.upper():
