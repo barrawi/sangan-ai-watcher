@@ -24,8 +24,8 @@ def get_cluster_metrics() -> dict:
 
     queries = {
         "cpu_usage_percent": 'sum(rate(container_cpu_usage_seconds_total{namespace="default"}[5m])) * 100',
-        "memory_usage_percent": 'sum(container_memory_usage_bytes{namespace="default"}) / sum(container_spec_memory_limit_bytes{namespace="default"}) * 100',
-        "pod_restart_count": 'sum(kube_pod_container_status_restarts_total{namespace="default"})',
+        "memory_usage_percent": 'sum(container_memory_working_set_bytes{namespace="default"}) / scalar(machine_memory_bytes) * 100',
+        "pod_restart_count": 'sum(increase(kube_pod_container_status_restarts_total{namespace="default"}[15m]))',
         "pods_not_ready": 'count(kube_pod_status_ready{namespace="default", condition="true"} == 0) or vector(0)',
         "pods_running": 'count(kube_pod_status_phase{namespace="default", phase="Running"})',
     }
