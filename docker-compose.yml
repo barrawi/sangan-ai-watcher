@@ -11,10 +11,11 @@ services:
       - "127.0.0.1:11434:11434" # ollama default port, ip for sec
     restart: unless-stopped 
     healthcheck: 
-      test: ["CMD", "list", "http://localhost:11434/"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "ollama", "list"] # run ollama list
+      interval: 30s
+      timeout: 10s
       retries: 5
+      start_period: 30s
     # wait unltil server is ready
     entrypoint: >
       /bin/sh -c "ollama serve &
