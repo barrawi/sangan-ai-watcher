@@ -5,6 +5,9 @@
 
 A security-first, locally-run AI monitoring agent that analyzes Kubernetes cluster health using a self-hosted LLM. No data leaves your machine.
 
+<img width="874" height="46" alt="image" src="https://github.com/user-attachments/assets/e11f99f9-cc4c-45df-a82f-4a88c99f4399" />
+<img width="803" height="67" alt="image" src="https://github.com/user-attachments/assets/5241950e-86e0-453a-8724-a619483ebe18" />
+
 ---
 
 ## What It Does
@@ -166,20 +169,9 @@ Alert firing:
 ## Discord Alerts
  
 When Sangan detects an ALERT condition, it sends a formatted embed to your Discord channel:
- 
-```
-🚨 Sangan Alert
-Status: ALERT
-Reason: High CPU usage and unavailable pods.
- 
-Metrics at time of alert
-• cpu_usage_percent: 0.16
-• memory_usage_percent: 0.55
-• pod_restart_count: 0.0
-• pods_not_ready: 2.0
-• pods_running: 11.0
-```
- 
+
+<img width="359" height="237" alt="image" src="https://github.com/user-attachments/assets/8403d71f-1f11-49c1-9db5-3cd2a25c79d6" />
+
 The webhook transport is pluggable - `notifications/notifier.py` can be pointed at Slack or any webhook receiver by swapping `_build_discord_payload()` for the target platform's format.
 
 ---
@@ -249,7 +241,7 @@ If you want to talk through any part of this project in depth, I'm happy to.
 
 ## Author
 
-**Wilberth Barrantes Calderón**
+**Wilberth Barrantes Calderón** || 
 [LinkedIn](https://www.linkedin.com/in/wilberth-barrantes-320902358/)
 
 ---
