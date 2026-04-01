@@ -36,7 +36,7 @@ def sanitize_metrics(raw_metrics: dict) -> dict:
 
         # to handle none values
         if value is None:
-            sanitized[key] = "unavaible"
+            sanitized[key] = "unavailable"
             continue
 
         # conver to string, only alllow this symbols
@@ -46,7 +46,7 @@ def sanitize_metrics(raw_metrics: dict) -> dict:
         clean = clean[:MAX_VALUE_LENGTH]
 
         if not clean:
-            sanitized[key] = "unavaible"
+            sanitized[key] = "unavailable"
         else:
             sanitized[key] = clean
 
