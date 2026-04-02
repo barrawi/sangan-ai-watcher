@@ -47,17 +47,17 @@ Structured log output + Discord webhook alert
 
 Security was a first-class concern from day one, not an afterthought.
 
- Threat | Mitigation |
+| Threat | Mitigation |
 |--------|------------|
-| Prompt injection via metric labels | Input sanitizer — regex whitelist, max length enforcement |
-| LLM output executed as code | Never happens — output is parsed for keywords only |
-| Ollama exposed to network | Bound to `127.0.0.1` — host-only access |
-| Malicious keys in metric data | Explicit key whitelist — unknown keys rejected by default |
-| System prompt manipulation | Hardcoded prompt — never derived from external input |
-| Unexpected LLM response format | Format gate — malformed responses are flagged and skipped, never silently treated as healthy |
-| Container privilege escalation | Non-root user, read-only filesystem, all capabilities dropped (Kubernetes deployment) |
+| Prompt injection via metric labels | Input sanitizer - regex whitelist, max length enforcement |
+| LLM output executed as code | Never happens - output is parsed for keywords only |
+| Ollama exposed to network | Bound to `127.0.0.1` - host-only access |
+| Malicious keys in metric data | Explicit key whitelist - unknown keys rejected by default |
+| System prompt manipulation | Hardcoded prompt - never derived from external input |
+| Unexpected LLM response format | Format gate - malformed responses are flagged and skipped, never silently treated as healthy |
+| Container privilege escalation | Non-root user (uid 1001), read-only filesystem, all capabilities dropped (Kubernetes deployment) |
 
-> **Note on LLM-generated reasons:** The ALERT/HEALTHY decision is based on metric thresholds. The reason text is LLM-generated and should be treated as a hint, not a diagnosis. Small models can misattribute causes — always check the raw metrics logged alongside the alert.
+> **Note on LLM-generated reasons:** The ALERT/HEALTHY decision is based on metric thresholds. The reason text is LLM-generated and should be treated as a hint, not a diagnosis. Small models can misattribute causes - always check the raw metrics logged alongside the alert.
 
 ---
 
@@ -69,6 +69,7 @@ Security was a first-class concern from day one, not an afterthought.
 - **Metrics:** Prometheus + kube-prometheus-stack (Helm)
 - **Alerts:** Discord webhook (pluggable — same code works for Slack or any webhook receiver)
 - **Orchestration:** Kubernetes (minikube), Docker
+- **Testing:** Pytest
 - **OS:** Arch Linux / RHEL compatible
 
 ---
@@ -104,12 +105,12 @@ OLLAMA_URL=http://localhost:11434
 PROMETHEUS_URL=http://localhost:9090
 ```
  
-**3. Start Ollama with GPU support**
+**3. Start the full stack**
 ```bash
 docker compose up -d
 ```
  
-Ollama will automatically pull Phi-3 Mini on first boot if not already present. Wait for the container to report `(healthy)` before proceeding:
+Ollama will automatically pull Phi-3 Mini on first boot if not already present. Sangan starts automatically once Ollama passes its healthcheck. Watch the stack come up:
 ```bash
 watch docker compose ps
 ```
@@ -127,18 +128,14 @@ helm install monitoring prometheus-community/kube-prometheus-stack \
 kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 ```
  
-**6. Install Python dependencies**
+**6. Run locally (optional, without Docker)**
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
- 
-**7. Run Sangan**
-```bash
 python -m agent.monitor
 ```
----
+ ---
 
 ## Sample Output
 
@@ -176,24 +173,38 @@ The webhook transport is pluggable - `notifications/notifier.py` can be pointed 
 
 ---
 
+## Running Tests
+ 
+```bash
+python -m pytest tests/ -v
+```
+ 
+The test suite covers the sanitizer security layer — the most critical component in the pipeline. Tests include prompt injection stripping, key whitelist enforcement, value sanitization, length truncation, and prompt structure integrity.
+ 
+
+---
+
 ## Project Structure
 
 ```
 sangan-ai-watcher/
 ├── agent/
-│   └── monitor.py              # Main loop — collect, analyze, act
+│   └── monitor.py              # Main loop - collect, analyze, act
 ├── collector/
 │   ├── prometheus.py           # Prometheus metric queries
 │   └── sanitizer.py            # Input sanitization + prompt builder
 ├── notifications/
 │   └── notifier.py             # Pluggable webhook alert transport
-├── tests/                      # Test suite (coming soon)
+├── tests/
+│   └── test_sanitizer.py       # Sanitizer security layer tests (11 tests)
 ├── kubernetes/                 # K8s manifests (coming soon)
-├── docker-compose.yml          # Ollama + GPU setup
+├── Dockerfile                  # Multi-stage build, non-root user, 45MB image
+├── docker-compose.yml          # Ollama + Sangan stack
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
+
 ---
 
 ## Roadmap
@@ -204,8 +215,8 @@ sangan-ai-watcher/
 - [x] Discord/webhook alert integration (pluggable transport)
 - [x] Environment variable configuration
 - [x] Docker healthcheck for Ollama
-- [ ] Pytest suite — especially for sanitizer (security layer)
-- [ ] Dockerfile for the agent itself
+- [x] Pytest suite — sanitizer security layer (11 tests)
+- [x] Dockerfile — multi-stage build, non-root user, 45MB final image
 - [ ] Kubernetes deployment manifests with RBAC and NetworkPolicy
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Testinfra post-deployment validation
