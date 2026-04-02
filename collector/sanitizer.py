@@ -39,7 +39,7 @@ def sanitize_metrics(raw_metrics: dict) -> dict:
             sanitized[key] = "unavailable"
             continue
 
-        # conver to string, only alllow this symbols
+        # convert to string, only alllow this symbols
         clean = re.sub(r"[^0-9\.\-]", "", str(value))
 
         # enforce length limit
