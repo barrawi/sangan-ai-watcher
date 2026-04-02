@@ -23,5 +23,13 @@ services:
       ollama list | grep -q 'phi3:mini' || ollama pull phi3:mini &&
       wait"
 
+  sangan: 
+    image: sangan:latest 
+    network_mode: host 
+    env_file: .env 
+    restart: unless-stopped
+    depends_on: 
+      ollama: 
+        condition: service_healthy
 volumes: 
   ollama_models: {}
