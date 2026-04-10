@@ -196,6 +196,7 @@ The webhook transport is pluggable - `notifications/notifier.py` can be pointed 
 ```bash
 python -m pytest tests/ -v
 ```
+<img width="934" height="249" alt="image" src="https://github.com/user-attachments/assets/79299556-0164-4310-a508-e9a51dc9fd6d" />
  
 The test suite covers the sanitizer security layer - the most critical component in the pipeline. Tests include prompt injection stripping, key whitelist enforcement, value sanitization, length truncation, and prompt structure integrity.
  
