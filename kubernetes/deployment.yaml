@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sangan
+  namespace: default
+  labels:
+    app: sangan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sangan
+  template:
+    metadata:
+      labels:
+        app: sangan
+    spec:
+      serviceAccountName: sangan-sa
+      securityContext:
+        runAsUser: 1001
+        runAsNonRoot: true
+        fsGroup: 1001
+      containers:
+        - name: sangan
+          image: sangan:latest
+          imagePullPolicy: Never # use local image don't pull
+          command: ["python", "-m", "agent.monitor"]
+          envFrom:
+            - secretRef:
+                name: sangan-secret
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

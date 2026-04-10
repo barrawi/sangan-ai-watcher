@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sangan-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: sangan
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress: []
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.103.24.118/32
+      ports:
+        - protocol: TCP
+          port: 9090
+    - to:
+        - ipBlock:
+            cidr: 192.168.49.1/32
+      ports:
+        - protocol: TCP
+          port: 11435
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53

@@ -15,3 +15,6 @@ venv/
 
 # Ignore logs
 *.log
+
+# Ignore K8 secret 
+secret.yaml
