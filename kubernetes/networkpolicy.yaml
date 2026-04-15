@@ -14,7 +14,7 @@ spec:
   egress:
     - to:
         - ipBlock:
-            cidr: 10.103.24.118/32
+            cidr: 10.103.213.12/32
       ports:
         - protocol: TCP
           port: 9090
