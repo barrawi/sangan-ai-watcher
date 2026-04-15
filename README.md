@@ -1,3 +1,5 @@
+[![Sangan CI/CD](https://github.com/barrawi/sangan-ai-watcher/actions/workflows/main.yml/badge.svg)](https://github.com/barrawi/sangan-ai-watcher/actions)
+
 # Sangan — AI-Powered Kubernetes Cluster Monitor
 
 > Named after the Yu-Gi-Oh card that searches 1 monster with 1500 or less ATK from their Deck to the hand.
