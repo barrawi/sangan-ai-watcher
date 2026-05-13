@@ -178,7 +178,8 @@ Normal operation:
 {"time": "2026-04-01T16:22:01Z", "logger": "sangan.sanitizer", "level": "INFO", "msg": "Sanitized 5/5 metrics"}
 {"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "LLM response: Status: HEALTHY\nReason: All metrics within normal thresholds."}
 {"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Cluster status: HEALTHY"}
-{"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Sleeping 60s until next cycle"}```
+{"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Sleeping 60s until next cycle"}
+```
  
 Alert firing:
 ```
