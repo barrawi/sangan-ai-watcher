@@ -5,13 +5,16 @@ the security spec defined in kubernetes/deployment.yaml
 Wilberth Barrantes
 """
 
+import subprocess
+
 import pytest
-import testinfra
+
+testinfra = pytest.importorskip(
+    "testinfra"
+)  # skips entire file if not installed
 
 
 def get_pod_name():
-    import subprocess
-
     result = subprocess.run(
         [
             "kubectl",
@@ -37,30 +40,35 @@ def host():
     return testinfra.get_host(f"kubectl://{pod_name}?namespace=default")
 
 
+@pytest.mark.integration
 def test_pod_runs_as_non_root(host):
     # check UID is 1001 which should be sangan as set up goes
     user = host.run("id -u")
     assert user.stdout.strip() == "1001"
 
 
+@pytest.mark.integration
 def test_root_filesystem_is_readonly(host):
     # readOnlyRootFilesystem: true in securityContext
     result = host.run("touch /test-write")
     assert result.rc != 0
 
 
+@pytest.mark.integration
 def test_ollama_url_env_var_is_set(host):
     result = host.run("printenv OLLAMA_URL")
     assert result.rc == 0
     assert result.stdout.strip() != ""
 
 
+@pytest.mark.integration
 def test_prometheus_url_env_var_is_set(host):
     result = host.run("printenv PROMETHEUS_URL")
     assert result.rc == 0
     assert result.stdout.strip() != ""
 
 
+@pytest.mark.integration
 def test_no_cap_sys_admin(host):
     # all capabilities dropped in securityContext
     result = host.run("cat /proc/1/status")
@@ -74,6 +82,7 @@ def test_no_cap_sys_admin(host):
     assert cap_value == "0000000000000000"
 
 
+@pytest.mark.integration
 def test_running_process_is_python(host):
     result = host.run("cat /proc/1/cmdline")
     assert "python" in result.stdout
