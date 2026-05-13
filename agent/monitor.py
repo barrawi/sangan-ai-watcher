@@ -18,9 +18,31 @@ from notifications.notifier import send_webhook_alert
 
 load_dotenv()
 
-logging.basicConfig(
-    format="%(asctime)s %(name)s %(levelname)s %(message)s", level=logging.INFO
-)
+# logging.basicConfig(
+#           format="%(asctime)s %(name)s %(levelname)s %(message)s", level=logging.INFO
+# )
+
+
+# better JSON loggin
+class JSONFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        return json.dumps(
+            {
+                "time": self.formatTime(record, "%Y-%m-%dT%H:%M:%SZ"),
+                "logger": record.name,
+                "level": record.levelname,
+                "msg": record.getMessage(),
+            }
+        )
+
+
+logging.basicConfig(level=logging.INFO)
+logging.getLogger().handlers[0].setFormatter(JSONFormatter())
+
+print(
+    f"DEBUG handlers: {logging.getLogger().handlers}", flush=True
+)  # debugging
+
 
 logger = logging.getLogger("sangan.monitor")
 
@@ -34,7 +56,7 @@ PERMITTED_ACTIONS = {
 }
 
 
-def query_llm(prompt: str) -> str:
+def query_llm(prompt: str) -> str | None:
     # send sanitized promt to local ollama
 
     try:

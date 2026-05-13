@@ -14,7 +14,7 @@ spec:
   egress:
     - to:
         - ipBlock:
-            cidr: 10.103.213.12/32
+            cidr: 10.99.146.179/32 # IP changes, needs to be fixed
       ports:
         - protocol: TCP
           port: 9090
