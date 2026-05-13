@@ -73,7 +73,7 @@ Security was a first-class concern from day one, not an afterthought.
 - **Metrics:** Prometheus + kube-prometheus-stack (Helm)
 - **Alerts:** Discord webhook (pluggable — same code works for Slack or any webhook receiver)
 - **Orchestration:** Kubernetes (minikube), Docker
-- **Testing:** Pytest
+- **Testing:** Pytest, Testinfra
 - **OS:** Arch Linux / RHEL compatible
 
 ---
@@ -129,6 +129,9 @@ kubectl get pods -n monitoring -w
  
 **5. Deploy Sangan to Kubernetes**
 ```bash
+# Build the image first
+docker build -t sangan:latest .
+
 # Load image into minikube
 minikube image load sangan:latest
  
@@ -155,21 +158,27 @@ kubectl port-forward -n monitoring svc/prometheus-operated 9090:9090 &
 python -m agent.monitor
 ```
 
+**7. Post-deploy validation (requires live cluster):**
+```bash
+pip install pytest-testinfra
+pytest tests/test_deployment.py -v
+```
+Validates the running pod is non-root (uid 1001), filesystem is read-only, 
+env vars are present, and all capabilities are dropped.
+
 ---
 
 ## Sample Output
 
 Normal operation:
 ```
-2026-04-01 16:22:01 sangan.monitor INFO Sangan is watching...
-2026-04-01 16:22:01 sangan.monitor INFO Starting evaluation cycle...
-2026-04-01 16:22:01 sangan.prometheus INFO Collected metrics: {'cpu_usage_percent': 0.14, 'memory_usage_percent': 0.45, 'pod_restart_count': 0.0, 'pods_not_ready': 0.0, 'pods_running': 3.0}
-2026-04-01 16:22:01 sangan.sanitizer INFO Sanitized 5/5 metrics
-2026-04-01 16:22:02 sangan.monitor INFO LLM response: Status: HEALTHY
-                                                        Reason: All metrics within normal thresholds.
-2026-04-01 16:22:02 sangan.monitor INFO Cluster status: HEALTHY
-2026-04-01 16:22:02 sangan.monitor INFO Sleeping 60s until next cycle
-```
+{"time": "2026-04-01T16:22:01Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Sangan is watching..."}
+{"time": "2026-04-01T16:22:01Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Starting evaluation cycle..."}
+{"time": "2026-04-01T16:22:01Z", "logger": "sangan.prometheus", "level": "INFO", "msg": "Collected metrics: {'cpu_usage_percent': 0.14, 'memory_usage_percent': 0.45, 'pod_restart_count': 0.0, 'pods_not_ready': 0.0, 'pods_running': 3.0}"}
+{"time": "2026-04-01T16:22:01Z", "logger": "sangan.sanitizer", "level": "INFO", "msg": "Sanitized 5/5 metrics"}
+{"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "LLM response: Status: HEALTHY\nReason: All metrics within normal thresholds."}
+{"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Cluster status: HEALTHY"}
+{"time": "2026-04-01T16:22:02Z", "logger": "sangan.monitor", "level": "INFO", "msg": "Sleeping 60s until next cycle"}```
  
 Alert firing:
 ```
@@ -235,6 +244,7 @@ sangan-ai-watcher/
 │   └── notifier.py             # Pluggable webhook alert transport
 ├── tests/
 │   └── test_sanitizer.py       # Sanitizer security layer tests (11 tests)
+│   └── test_deployment.py      # Post-deploy security validation (testinfra)
 ├── kubernetes/
 │   ├── serviceaccount.yaml
 │   ├── role.yaml
@@ -262,9 +272,9 @@ sangan-ai-watcher/
 - [x] Pytest suite — sanitizer security layer (11 tests)
 - [x] Dockerfile — multi-stage build, non-root user, 45MB final image
 - [x] Kubernetes deployment manifests with RBAC and NetworkPolicy
-- [ ] GitHub Actions CI/CD pipeline
-- [ ] Testinfra post-deployment validation
-- [ ] Structured JSON logging
+- [x] GitHub Actions CI/CD pipeline
+- [x] Testinfra post-deployment validation
+- [x] Structured JSON logging
 - [ ] Grafana dashboard for agent activity
 
 ---
